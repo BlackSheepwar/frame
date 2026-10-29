@@ -31,5 +31,6 @@ target_link_libraries(${CMAKE_PROJECT_NAME}
     svc_key_logic
     dev_oled
     bsp_iic
+    bsp_spi
     stm32cubemx
 )

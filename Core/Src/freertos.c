@@ -27,6 +27,7 @@
 /* USER CODE BEGIN Includes */
 #include "svc_key_logic.h"
 #include "bsp_iic.h"
+#include "bsp_spi.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -109,6 +110,11 @@ osMutexId_t IIC_LOCKHandle;
 const osMutexAttr_t IIC_LOCK_attributes = {
   .name = "IIC_LOCK"
 };
+/* Definitions for SPI_LOCK */
+osMutexId_t SPI_LOCKHandle;
+const osMutexAttr_t SPI_LOCK_attributes = {
+  .name = "SPI_LOCK"
+};
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
@@ -135,9 +141,13 @@ void MX_FREERTOS_Init(void) {
   /* creation of IIC_LOCK */
   IIC_LOCKHandle = osMutexNew(&IIC_LOCK_attributes);
 
+  /* creation of SPI_LOCK */
+  SPI_LOCKHandle = osMutexNew(&SPI_LOCK_attributes);
+
   /* USER CODE BEGIN RTOS_MUTEX */
   /* 初始化 */
   BSP_IIC_Init();
+  BSP_SPI_Init();
   Svc_Key_Logic_Init();
   /* USER CODE END RTOS_MUTEX */
 

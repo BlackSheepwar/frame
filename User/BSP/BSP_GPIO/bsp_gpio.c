@@ -52,6 +52,8 @@ const bsp_gpio_t bsp_gpio_pc13 = { .port = GPIOC, .pin = GPIO_PIN_13, .dir = BSP
 const bsp_gpio_t bsp_gpio_pb1  = { .port = GPIOB, .pin = GPIO_PIN_1, .dir = BSP_GPIO_DIR_IN };
 const bsp_gpio_t bsp_gpio_pb10 = { .port = GPIOB, .pin = GPIO_PIN_10, .dir = BSP_GPIO_DIR_IN };
 const bsp_gpio_t bsp_gpio_pb11 = { .port = GPIOB, .pin = GPIO_PIN_11, .dir = BSP_GPIO_DIR_IN };
+// SPI2 片选（LCD）
+const bsp_gpio_t bsp_gpio_pa8  = { .port = GPIOA, .pin = GPIO_PIN_8, .dir = BSP_GPIO_DIR_OUT };
 
 /*==============================================================================
  * 接口实现
