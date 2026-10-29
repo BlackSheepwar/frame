@@ -35,16 +35,6 @@
  * 类型定义
  *============================================================================*/
 /**
- * @brief 传输方向
- * @note TXRX 要求外设配成全双工 2LINES，收发缓冲区都必须有效。
- */
-typedef enum {
-    BSP_SPI_DIR_TX   = 0, /* 只发：发命令、写寄存器、刷屏 */
-    BSP_SPI_DIR_RX   = 1, /* 只收：读传感器、读状态 */
-    BSP_SPI_DIR_TXRX = 2, /* 全双工同时收发：一帧里既要问也要答 */
-} bsp_spi_dir_t;
-
-/**
  * @brief BSP_SPI 返回码
  */
 typedef enum {
@@ -56,20 +46,6 @@ typedef enum {
     BSP_SPI_ERR_BUS     = -5, /* 总线错误：MODF / OVR / CRC */
     BSP_SPI_ERR_HAL     = -7, /* HAL 启动失败或 DMA 错误 */
 } bsp_spi_status_t;
-
-/**
- * @brief 一次传输命令
- * @note len 是字节数，只支持 8 bit 数据宽度；16 bit 宽度在 Init 阶段
- *       就被挡掉，避免"字节数"与"半字数"两种语义混在一起。
- */
-typedef struct {
-    const uint8_t *tx;         /* 发送缓冲区，DIR_RX 时必须为 NULL */
-    uint8_t       *rx;         /* 接收缓冲区，DIR_TX 时必须为 NULL */
-    uint16_t       len;        /* 传输字节数，不能为 0 */
-    uint8_t        dir;        /* 方向，取 bsp_spi_dir_t */
-    uint8_t        cs_hold;    /* 1: 传输结束后保持片选（仅设备级接口有效） */
-    uint32_t       timeout_ms; /* 超时，0 表示用默认 50 ms */
-} bsp_spi_msg_t;
 
 /**
  * @brief SPI 总线句柄（不透明类型，成员定义在 bsp_spi.c）
@@ -103,150 +79,72 @@ extern const bsp_spi_dev_t bsp_spi2_dev_lcd;
 bsp_spi_status_t BSP_SPI_Init(void);
 
 /**
- * @brief 在指定总线上提交一次传输并阻塞等待完成
- * @param bus 总线句柄，不能为 NULL
- * @param msg 传输命令，不能为 NULL；缓冲区在返回前必须保持有效
+ * @brief 在指定总线上提交一次传输并阻塞等待完成（不管片选）
+ * @param bus        总线句柄，不能为 NULL
+ * @param tx         发送缓冲区，NULL 表示本次不发
+ * @param rx         接收缓冲区，NULL 表示本次不收
+ * @param len        传输字节数，不能为 0
+ * @param timeout_ms 超时预算（毫秒），0 表示用默认 50 ms
  * @retval BSP_SPI_OK: 传输成功
- * @retval BSP_SPI_ERR_PARAM: 句柄、方向、长度或缓冲区非法
+ * @retval BSP_SPI_ERR_PARAM: 句柄或长度非法，或两个缓冲区都为 NULL
  * @retval BSP_SPI_ERR_STATE: 驱动未初始化
  * @retval BSP_SPI_ERR_TIMEOUT: 排队等锁超时，或传输超时
  * @retval BSP_SPI_ERR_MODE: 外设当前方向不支持本次传输
  * @retval BSP_SPI_ERR_BUS: 总线错误
  * @retval BSP_SPI_ERR_HAL: HAL 启动失败或 DMA 错误
- * @note 本函数不管片选，多设备请用 BSP_SPI_Dev_* 系列。多任务可并发调用，
- *       按互斥量排队。不能在中断中调用，也不能被同一任务重入。
+ * @note 方向不用显式给，由两个指针推出来：
+ *         tx 非空 + rx 为空  → 只发
+ *         tx 为空 + rx 非空  → 只收
+ *         两个都非空        → 全双工
+ *         两个都为空        → ERR_PARAM
+ *       本函数不管片选：单设备常选、或需要自己控制片选保持时用它；常规
+ *       带片选的收发用 BSP_SPI_Dev_Transfer()。多任务可并发调用，按互斥量
+ *       排队。不能在中断中调用，也不能被同一任务重入。timeout_ms 同时用于
+ *       排队和传输，两者共用一份预算；超时后外设会被中止复位，总线随即
+ *       交给下一个排队的任务。
  */
-bsp_spi_status_t BSP_SPI_Transfer(bsp_spi_t *bus, const bsp_spi_msg_t *msg);
-
-/**
- * @brief 在指定总线上只发不收
- * @param bus  总线句柄，不能为 NULL
- * @param data 发送缓冲区，不能为 NULL
- * @param len  发送字节数，不能为 0
- * @retval BSP_SPI_OK: 发送成功
- * @retval BSP_SPI_ERR_PARAM: 参数非法
- * @retval BSP_SPI_ERR_STATE: 驱动未初始化
- * @retval BSP_SPI_ERR_TIMEOUT: 排队或传输超时
- * @retval BSP_SPI_ERR_MODE: 外设当前方向不支持发送
- * @retval BSP_SPI_ERR_BUS: 总线错误
- * @retval BSP_SPI_ERR_HAL: HAL 错误
- */
-bsp_spi_status_t BSP_SPI_Write(bsp_spi_t *bus, const uint8_t *data,
-                               uint16_t len);
-
-/**
- * @brief 在指定总线上只收不发
- * @param bus  总线句柄，不能为 NULL
- * @param data 接收缓冲区，不能为 NULL
- * @param len  接收字节数，不能为 0
- * @retval BSP_SPI_OK: 接收成功
- * @retval BSP_SPI_ERR_PARAM: 参数非法
- * @retval BSP_SPI_ERR_STATE: 驱动未初始化
- * @retval BSP_SPI_ERR_TIMEOUT: 排队或传输超时
- * @retval BSP_SPI_ERR_MODE: 外设当前方向不支持接收
- * @retval BSP_SPI_ERR_BUS: 总线错误
- * @retval BSP_SPI_ERR_HAL: HAL 错误
- */
-bsp_spi_status_t BSP_SPI_Read(bsp_spi_t *bus, uint8_t *data, uint16_t len);
-
-/**
- * @brief 在指定总线上全双工收发
- * @param bus 总线句柄，不能为 NULL
- * @param tx  发送缓冲区，不能为 NULL
- * @param rx  接收缓冲区，不能为 NULL
- * @param len 收发字节数，不能为 0
- * @retval BSP_SPI_OK: 收发成功
- * @retval BSP_SPI_ERR_PARAM: 参数非法
- * @retval BSP_SPI_ERR_STATE: 驱动未初始化
- * @retval BSP_SPI_ERR_TIMEOUT: 排队或传输超时
- * @retval BSP_SPI_ERR_MODE: 外设不是全双工 2LINES
- * @retval BSP_SPI_ERR_BUS: 总线错误
- * @retval BSP_SPI_ERR_HAL: HAL 错误
- */
-bsp_spi_status_t BSP_SPI_WriteRead(bsp_spi_t *bus, const uint8_t *tx,
-                                   uint8_t *rx, uint16_t len);
+bsp_spi_status_t BSP_SPI_Transfer(bsp_spi_t *bus, const uint8_t *tx,
+                                  uint8_t *rx, uint16_t len,
+                                  uint32_t timeout_ms);
 
 /**
  * @brief 拉有效片选
  * @param dev 设备句柄，不能为 NULL
  * @note 电平按句柄里的 cs_active_level 换算，调用者不用关心极性。
- *       一般不需要直接调用，BSP_SPI_Dev_Transfer() 会自己做。
+ *       常规单次收发不需要直接调用，BSP_SPI_Dev_Transfer() 会自己做；
+ *       需要一帧内分多段发、片选全程保持低时，用它自己成对包住若干次
+ *       BSP_SPI_Transfer()。
  */
 void BSP_SPI_Dev_Select(const bsp_spi_dev_t *dev);
 
 /**
  * @brief 放无效片选
  * @param dev 设备句柄，不能为 NULL
- * @note 与 BSP_SPI_Dev_Select() 配对，用于 cs_hold 保持片选的场景。
+ * @note 与 BSP_SPI_Dev_Select() 配对，用于一帧分多段发、片选全程保持低
+ *       的场景。
  */
 void BSP_SPI_Dev_Deselect(const bsp_spi_dev_t *dev);
 
 /**
  * @brief 在指定设备上提交一次传输，自动拉放片选
- * @param dev 设备句柄，不能为 NULL
- * @param msg 传输命令，不能为 NULL；cs_hold 置 1 时传输后不释放片选
+ * @param dev        设备句柄，不能为 NULL
+ * @param tx         发送缓冲区，NULL 表示本次不发
+ * @param rx         接收缓冲区，NULL 表示本次不收
+ * @param len        传输字节数，不能为 0
+ * @param timeout_ms 超时预算（毫秒），0 表示用默认 50 ms
  * @retval BSP_SPI_OK: 传输成功
- * @retval BSP_SPI_ERR_PARAM: 句柄或命令非法
+ * @retval BSP_SPI_ERR_PARAM: 句柄或长度非法，或两个缓冲区都为 NULL
  * @retval BSP_SPI_ERR_STATE: 驱动未初始化
  * @retval BSP_SPI_ERR_TIMEOUT: 排队或传输超时
  * @retval BSP_SPI_ERR_MODE: 外设当前方向不支持本次传输
  * @retval BSP_SPI_ERR_BUS: 总线错误
  * @retval BSP_SPI_ERR_HAL: HAL 错误
- * @note cs_hold 为 1 时片选一直保持，直到调用者自己
- *       BSP_SPI_Dev_Deselect()。互斥量只覆盖单次传输，所以保持片选期间
- *       不能有其他任务访问同一条总线，此用法只允许同一任务连续用完再放。
+ * @note 方向推断规则与 BSP_SPI_Transfer() 完全一致。片选在传输前拉有效、
+ *       返回前放无效，成功失败都放。需要片选跨多次传输保持低，改用
+ *       BSP_SPI_Dev_Select() + BSP_SPI_Transfer() 自己成对包住。
  */
 bsp_spi_status_t BSP_SPI_Dev_Transfer(const bsp_spi_dev_t *dev,
-                                      const bsp_spi_msg_t *msg);
-
-/**
- * @brief 向设备只发不收，自动拉放片选
- * @param dev  设备句柄，不能为 NULL
- * @param data 发送缓冲区，不能为 NULL
- * @param len  发送字节数，不能为 0
- * @retval BSP_SPI_OK: 发送成功
- * @retval BSP_SPI_ERR_PARAM: 参数非法
- * @retval BSP_SPI_ERR_STATE: 驱动未初始化
- * @retval BSP_SPI_ERR_TIMEOUT: 排队或传输超时
- * @retval BSP_SPI_ERR_MODE: 外设当前方向不支持发送
- * @retval BSP_SPI_ERR_BUS: 总线错误
- * @retval BSP_SPI_ERR_HAL: HAL 错误
- */
-bsp_spi_status_t BSP_SPI_Dev_Write(const bsp_spi_dev_t *dev,
-                                   const uint8_t *data, uint16_t len);
-
-/**
- * @brief 从设备只收不发，自动拉放片选
- * @param dev  设备句柄，不能为 NULL
- * @param data 接收缓冲区，不能为 NULL
- * @param len  接收字节数，不能为 0
- * @retval BSP_SPI_OK: 接收成功
- * @retval BSP_SPI_ERR_PARAM: 参数非法
- * @retval BSP_SPI_ERR_STATE: 驱动未初始化
- * @retval BSP_SPI_ERR_TIMEOUT: 排队或传输超时
- * @retval BSP_SPI_ERR_MODE: 外设当前方向不支持接收
- * @retval BSP_SPI_ERR_BUS: 总线错误
- * @retval BSP_SPI_ERR_HAL: HAL 错误
- */
-bsp_spi_status_t BSP_SPI_Dev_Read(const bsp_spi_dev_t *dev, uint8_t *data,
-                                  uint16_t len);
-
-/**
- * @brief 与设备全双工收发，自动拉放片选
- * @param dev 设备句柄，不能为 NULL
- * @param tx  发送缓冲区，不能为 NULL
- * @param rx  接收缓冲区，不能为 NULL
- * @param len 收发字节数，不能为 0
- * @retval BSP_SPI_OK: 收发成功
- * @retval BSP_SPI_ERR_PARAM: 参数非法
- * @retval BSP_SPI_ERR_STATE: 驱动未初始化
- * @retval BSP_SPI_ERR_TIMEOUT: 排队或传输超时
- * @retval BSP_SPI_ERR_MODE: 外设不是全双工 2LINES
- * @retval BSP_SPI_ERR_BUS: 总线错误
- * @retval BSP_SPI_ERR_HAL: HAL 错误
- */
-bsp_spi_status_t BSP_SPI_Dev_WriteRead(const bsp_spi_dev_t *dev,
-                                       const uint8_t *tx, uint8_t *rx,
-                                       uint16_t len);
+                                      const uint8_t *tx, uint8_t *rx,
+                                      uint16_t len, uint32_t timeout_ms);
 
 #endif /* __BSP_SPI_H__ */
