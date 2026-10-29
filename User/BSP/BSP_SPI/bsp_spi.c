@@ -135,7 +135,7 @@ bsp_spi_t bsp_spi2 = {
     .dma_mask    = 0U,
 };
 
-/** @brief 挂在 SPI2 上的 LCD：片选 PA8，低电平有效（DC/RES/BLK 由设备层管） */
+/** @brief 挂在 SPI2 上的设备对象 */
 const bsp_spi_dev_t bsp_spi2_dev_lcd = {
     .bus             = &bsp_spi2,
     .cs              = &bsp_gpio_pa8,
