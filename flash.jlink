@@ -1,0 +1,9 @@
+device STM32F103C8
+si SWD
+speed 4000
+connect
+erase
+loadfile build/Debug/frame.elf
+r
+g
+exit

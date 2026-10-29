@@ -1,0 +1,93 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        // ========== Ricardo ==========
+        // ================= configure =================
+        // 配置（生成 build 目录）
+        {
+            "label": "Ricardo: configure",
+            "type": "shell",
+            "command": "cube-cmake",
+            "args": ["--preset", "Debug"],
+            "options": { "cwd": "${workspaceFolder}" },/*正确填写构建路径*/
+            "problemMatcher": []
+        },
+        // ================= build =================
+        // 构建
+        {
+            "label": "Ricardo: build",
+            "dependsOn": ["Ricardo: configure"],
+            "type": "shell",
+            "command": "cube-cmake",
+            "args": [
+                "--build",
+                "${workspaceFolder}/build/Debug",/*正确填写构建路径*/
+                "--"
+            ],
+            "problemMatcher": []
+        },
+
+        // ================= ST-Link =================
+        // 烧录
+        {
+            "label": "Ricardo: flash (ST-Link)",
+            "type": "shell",
+            "command": "D:\\a3\\STM32CubeProgrammer\\bin\\STM32_Programmer_CLI.exe",/*正确填写ST-Linkmer程序路径*/
+            "args": [
+                "-c",
+                "port=SWD",
+                "-d",
+                "${workspaceFolder}/build/Debug/frame.elf",/*正确填写elf文件路径*/
+                "-v",
+                "-rst"
+            ],
+            "problemMatcher": []
+        },
+        // 构建并烧录
+        {
+            "label": "Ricardo: build + flash (ST-Link)",
+            "dependsOn": [
+                "Ricardo: build",
+                "Ricardo: flash (ST-Link)"
+            ],
+            "dependsOrder": "sequence",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+
+        // ================= J-Link =================
+        // 烧录
+        {
+            "label": "Ricardo: flash (J-Link)",
+            "type": "shell",
+            "command": "D:\\a3\\JLink_V930\\JLink.exe",/*正确填写J-Link程序路径*/
+            "args": [
+                "-ExitOnError",
+                "-CommanderScript",
+                "${workspaceFolder}/flash.jlink"/*正确填写J-Link脚本路径*/
+            ],
+            "options": { "cwd": "${workspaceFolder}" },/*loadfile 相对路径基于此目录*/
+            "problemMatcher": []
+        },
+        // 构建并烧录
+        {
+            "label": "Ricardo: build + flash (J-Link)",
+            "dependsOn": [
+                "Ricardo: build",
+                "Ricardo: flash (J-Link)"
+            ],
+            "dependsOrder": "sequence",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        }
+
+        // 如果有多个程序，需要重复以上步骤
+        // 只有tasks.json文件在根目录下的.vscode文件下，才会被识别
+        // 如果使用多根工作区可以有多个可以被识别
+        // 要是只有一个工作区但是要管理多个程序就要建立一个统一的tasks.json文件在根目录下的.vscode文件下
+    ]
+}
