@@ -1,7 +1,7 @@
 /**
  * @file app_level.c
  * @brief 应用层：档位业务与显示
- * @author 李嘉图
+ * @author Ricardo
  * @date 2026-10-23
  *
  * @note 这一层只管"档位是几、灯怎么亮"，不做三件事：

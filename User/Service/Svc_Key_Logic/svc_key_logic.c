@@ -1,7 +1,7 @@
 /**
  * @file svc_key_logic.c
  * @brief 服务层实现：消抖、单击/长按判定，事件打包后投进队列
- * @author 李嘉图
+ * @author Ricardo
  * @date 2026-10-23
  *
  * @note 本层不接触电平：设备层（Dev_Key_Read）已经把它变成了

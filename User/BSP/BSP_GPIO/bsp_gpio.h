@@ -1,7 +1,7 @@
 /**
  * @file bsp_gpio.h
  * @brief 硬件驱动层：GPIO 句柄与读写函数
- * @author 李嘉图
+ * @author Ricardo
  * @date 2026-10-23
  *
  * @note 一个引脚一个 bsp_gpio_t 句柄，上层拿到句柄指针调函数即可读写。

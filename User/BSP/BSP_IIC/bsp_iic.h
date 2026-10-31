@@ -1,7 +1,7 @@
 /**
  * @file bsp_iic.h
  * @brief IIC 硬件驱动层：互斥量排队 + DMA 完成中断唤醒
- * @author 李嘉图
+ * @author Ricardo
  * @date 2026-10-27
  *
  * @note 一个 bsp_iic_t 对应一路硬件 IIC。一次传输由 BSP_IIC_Transfer()

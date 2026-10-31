@@ -1,7 +1,7 @@
 /**
  * @file bsp_gpio.c
  * @brief 硬件驱动层实现：把句柄翻译成 HAL 的端口与引脚
- * @author 李嘉图
+ * @author Ricardo
  * @date 2026-10-23
  *
  * @note 本文件只做三件事：判空、把句柄字段喂给 HAL、返回结果。

@@ -1,7 +1,7 @@
 /**
  * @file dev_key.h
  * @brief 设备层：一个按键 = 一个 BSP 引脚句柄 + 极性
- * @author 李嘉图
+ * @author Ricardo
  * @date 2026-10-23
  *
  * @note 只回答"这个按键现在按着没有"，不回答"按多久算长按"。

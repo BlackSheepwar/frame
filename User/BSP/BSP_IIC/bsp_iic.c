@@ -1,7 +1,7 @@
 /**
  * @file bsp_iic.c
  * @brief IIC 硬件驱动层：互斥量排队 + 完成中断唤醒
- * @author 李嘉图
+ * @author Ricardo
  * @date 2026-10-27
  *
  * @note 设计模型：

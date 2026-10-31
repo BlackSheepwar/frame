@@ -1,7 +1,7 @@
 /**
  * @file bsp_spi.c
  * @brief SPI 硬件驱动层：互斥量排队 + 完成中断唤醒，总线/设备两级句柄
- * @author 李嘉图
+ * @author Ricardo
  * @date 2026-10-29
  *
  * @note 设计模型：

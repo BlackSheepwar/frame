@@ -1,7 +1,7 @@
 /**
  * @file task_key_scan.c
  * @brief 任务层：按键扫描线程体
- * @author 李嘉图
+ * @author Ricardo
  * @date 2026-10-22
  *
  * @note 这一层只做"节拍 + 调一步"，不含任何业务判断：

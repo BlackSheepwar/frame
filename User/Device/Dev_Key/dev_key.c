@@ -1,7 +1,7 @@
 /**
  * @file dev_key.c
  * @brief 设备层实现：按键 = BSP 引脚句柄 + 极性
- * @author 李嘉图
+ * @author Ricardo
  * @date 2026-10-23
  *
  * @note 一台按键只做一件事：把电平换算成"按下 / 松开"。

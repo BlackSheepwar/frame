@@ -1,7 +1,7 @@
 /**
  * @file app_level.h
  * @brief 应用层：档位业务
- * @author 李嘉图
+ * @author Ricardo
  * @date 2026-10-22
  *
  * @note APP 层只做业务，不建线程、不碰内核、不驱动下层服务：

@@ -1,7 +1,7 @@
 /**
  * @file app_key_cmd.h
  * @brief 按键命令分发：一条事件的唯一入口
- * @author 李嘉图
+ * @author Ricardo
  * @date 2026-10-23
  *
  * @note 消抖服务只产事件，命令表决定事件做什么。

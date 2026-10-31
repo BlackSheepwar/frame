@@ -1,7 +1,7 @@
 /**
  * @file svc_key_logic.h
  * @brief 服务层：按键消抖、单击/长按判定，事件打包后投进队列
- * @author 李嘉图
+ * @author Ricardo
  * @date 2026-10-23
  *
  * @note 时间由调用方按毫秒喂进来，本层不认识扫描周期。

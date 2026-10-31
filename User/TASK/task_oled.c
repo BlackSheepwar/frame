@@ -1,7 +1,7 @@
 /**
  * @file task_oled.c
  * @brief 任务层：OLED 显示线程体（周期刷新）
- * @author 李嘉图
+ * @author Ricardo
  * @date 2026-10-23
  *
  * @note 线程本身由 CubeMX 按 frame.ioc 的 Tasks01 创建，入口名为 Task_OLED，

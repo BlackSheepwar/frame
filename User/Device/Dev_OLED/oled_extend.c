@@ -1,7 +1,7 @@
 /**
  * @file oled_extend.c
  * @brief 波特律动OLED驱动(SSD1306)扩展件
- * @author 制作人: 李嘉图
+ * @author 制作人: Ricardo
  * @dateh
  *   创建时间: 2025-12-02
  *   更新时间: 2025-12-02

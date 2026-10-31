@@ -1,7 +1,7 @@
 /**
  * @file task_key_cmd.c
  * @brief 任务层：按键命令线程体（阻塞收事件 → 交给命令表）
- * @author 李嘉图
+ * @author Ricardo
  * @date 2026-10-23
  *
  * @note 这个线程和 Task_Key_Scan 的分工：

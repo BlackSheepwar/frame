@@ -1,7 +1,7 @@
 /**
  * @file dev_led_bar.c
  * @brief 设备层实现：灯带 = 一组 BSP 引脚句柄 + 极性
- * @author 李嘉图
+ * @author Ricardo
  * @date 2026-10-23
  *
  * @note 本文件不含端口号、引脚号、模式、上下拉——那些在 BSP 层。

@@ -1,7 +1,7 @@
 /**
  * @file app_key_cmd.c
  * @brief 按键命令分发（配置表驱动）
- * @author 李嘉图
+ * @author Ricardo
  * @date 2026-10-23
  *
  * @note 参照 RC_Dog 的 app_key_cmd.c：命令不写在 if 里，全部集中到

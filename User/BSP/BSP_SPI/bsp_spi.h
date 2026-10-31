@@ -1,7 +1,7 @@
 /**
  * @file bsp_spi.h
  * @brief SPI 硬件驱动层：总线句柄 + 片选设备句柄，互斥量排队 + 完成唤醒
- * @author 李嘉图
+ * @author Ricardo
  * @date 2026-10-29
  *
  * @note 两级句柄，对应"一条总线挂多个设备"：

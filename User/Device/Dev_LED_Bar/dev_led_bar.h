@@ -1,7 +1,7 @@
 /**
  * @file dev_led_bar.h
  * @brief 设备层：一串灯 = 一组 BSP 引脚句柄
- * @author 李嘉图
+ * @author Ricardo
  * @date 2026-10-23
  *
  * @note 只回答"这个设备能做什么"，不回答"什么时候做"。
